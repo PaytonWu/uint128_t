@@ -34,6 +34,7 @@ to do a general rewrite of this class.
 #ifndef __UINT128_T__
 #define __UINT128_T__
 
+#include <bit>
 #include <cstdint>
 #include <ostream>
 #include <stdexcept>
@@ -135,6 +136,7 @@ class uint128_t{
 
         void export_bits(std::vector<uint8_t> & ret) const;
         std::vector<uint8_t> export_bits_compact() const;
+        std::vector<uint8_t> export_bits_compact(std::endian endian) const;
 
         template <typename T, typename = typename std::enable_if<std::is_integral<T>::value, T>::type >
         uint128_t operator&(const T & rhs) const{

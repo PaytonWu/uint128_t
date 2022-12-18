@@ -465,6 +465,47 @@ std::vector<uint8_t> uint128_t::export_bits_compact() const
     return ret;
 }
 
+std::vector<uint8_t> uint128_t::export_bits_compact(std::endian const endian) const
+{
+    std::vector<uint8_t> ret;
+    ret.reserve(16);
+
+    switch (endian)
+    {
+    case std::endian::big:
+    {
+        ConvertToVector(ret, UPPER);
+        ConvertToVector(ret, LOWER);
+
+        int i = 0;
+        while (ret[i] == 0 && i < 16)
+        {
+            ++i;
+        }
+        ret.erase(std::begin(ret), std::next(std::begin(ret), i));
+        return ret;
+    }
+
+    case std::endian::little:
+    {
+        ConvertToVector(ret, LOWER);
+        ConvertToVector(ret, UPPER);
+
+        int i = 15;
+        while (ret[i] == 0 && i >= 0)
+        {
+            --i;
+        }
+        ret.erase(std::next(std::begin(ret), i), std::end(ret));
+        return ret;
+    }
+
+    default:
+        assert(false);
+        return ret;
+    }
+}
+
 std::pair<uint128_t, uint128_t> uint128_t::divmod(const uint128_t &lhs, const uint128_t &rhs) const
 {
     // Save some calculations /////////////////////
