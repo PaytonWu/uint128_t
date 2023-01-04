@@ -1,5 +1,5 @@
 CXX?=g++
-STANDARD?=c++14
+STANDARD?=c++20
 CXXFLAGS=-std=$(STANDARD) -Wall -pedantic -g -I../../googletest/googletest/include -I..
 LDFLAGS=-L../../googletest/build/install/lib -lgtest -lpthread
 TARGET=test

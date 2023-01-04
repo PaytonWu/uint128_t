@@ -1,7 +1,9 @@
 #include "uint128_t.build"
 
 #include <algorithm>
+#include <cassert>
 #include <cctype>
+#include <algorithm>
 #include <sstream>
 
 const uint128_t uint128_0(0);
@@ -432,7 +434,7 @@ uint128_t &uint128_t::operator*=(const uint128_t &rhs)
     return *this;
 }
 
-void uint128_t::ConvertToVector(std::vector<uint8_t> &ret, const uint64_t &val) const
+static void convert_to_vector_big_endian(std::vector<uint8_t> &ret, const uint64_t &val)
 {
     ret.push_back(static_cast<uint8_t>(val >> 56));
     ret.push_back(static_cast<uint8_t>(val >> 48));
@@ -446,8 +448,8 @@ void uint128_t::ConvertToVector(std::vector<uint8_t> &ret, const uint64_t &val) 
 
 void uint128_t::export_bits(std::vector<uint8_t> &ret) const
 {
-    ConvertToVector(ret, const_cast<const uint64_t &>(UPPER));
-    ConvertToVector(ret, const_cast<const uint64_t &>(LOWER));
+    convert_to_vector_big_endian(ret, const_cast<const uint64_t &>(UPPER));
+    convert_to_vector_big_endian(ret, const_cast<const uint64_t &>(LOWER));
 }
 
 std::vector<uint8_t> uint128_t::export_bits_compact() const
@@ -467,43 +469,12 @@ std::vector<uint8_t> uint128_t::export_bits_compact() const
 
 std::vector<uint8_t> uint128_t::export_bits_compact(std::endian const endian) const
 {
-    std::vector<uint8_t> ret;
-    ret.reserve(16);
-
-    switch (endian)
-    {
-    case std::endian::big:
-    {
-        ConvertToVector(ret, UPPER);
-        ConvertToVector(ret, LOWER);
-
-        int i = 0;
-        while (ret[i] == 0 && i < 16)
-        {
-            ++i;
-        }
-        ret.erase(std::begin(ret), std::next(std::begin(ret), i));
-        return ret;
+    auto res = export_bits_compact();
+    if (endian == std::endian::little) {
+        std::ranges::reverse(res);
     }
 
-    case std::endian::little:
-    {
-        ConvertToVector(ret, LOWER);
-        ConvertToVector(ret, UPPER);
-
-        int i = 15;
-        while (ret[i] == 0 && i >= 0)
-        {
-            --i;
-        }
-        ret.erase(std::next(std::begin(ret), i), std::end(ret));
-        return ret;
-    }
-
-    default:
-        assert(false);
-        return ret;
-    }
+    return res;
 }
 
 std::pair<uint128_t, uint128_t> uint128_t::divmod(const uint128_t &lhs, const uint128_t &rhs) const

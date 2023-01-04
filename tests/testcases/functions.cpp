@@ -85,6 +85,35 @@ TEST(Function, export_bits_compact_zero){
     EXPECT_EQ(bits, compact);
 }
 
+TEST(Function, export_bits_compact_little){
+    const uint64_t u64 = 0x0123456789abcdefULL;
+    const uint128_t value = u64;
+
+    EXPECT_EQ(value, u64);
+
+    const std::vector<uint8_t> compact = {
+        0xef, 0xcd, 0xab, 0x89, 0x67, 0x45, 0x23, 0x01
+    };
+
+    auto bits = value.export_bits_compact(std::endian::little);
+
+    EXPECT_EQ(bits, compact);
+}
+
+TEST(Function, export_bits_compact_zero_little){
+    const uint64_t u64 = 0;
+    const uint128_t value = u64;
+
+    EXPECT_EQ(value, u64);
+
+    const std::vector<uint8_t> compact = {
+    };
+
+    auto bits = value.export_bits_compact(std::endian::little);
+
+    EXPECT_EQ(bits, compact);
+}
+
 TEST(External, ostream){
     const uint128_t value(0xfedcba9876543210ULL);
 
