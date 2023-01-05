@@ -45,4 +45,4 @@ int main() {
 ### Compilation
 A C++ compiler supporting at least C++11 is required.
 
-Compilation can be done by directly including `uint128_t.cpp` in your compile command, e.g. `g++ -std=c++11 main.cpp uint128_t.cpp`, or other ways, such as linking the `uint128_t.o` file, or creating a library, and linking the library in.
+Compilation can be done by directly including `uint128_t.cpp` in your compile command, e.g. `g++ -std=c++20 main.cpp uint128_t.cpp`, or other ways, such as linking the `uint128_t.o` file, or creating a library, and linking the library in.
