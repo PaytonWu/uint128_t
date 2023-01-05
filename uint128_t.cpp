@@ -470,7 +470,8 @@ std::vector<uint8_t> uint128_t::export_bits_compact() const
 std::vector<uint8_t> uint128_t::export_bits_compact(std::endian const endian) const
 {
     auto res = export_bits_compact();
-    if (endian == std::endian::little) {
+    if (endian == std::endian::little)
+    {
         std::ranges::reverse(res);
     }
 
@@ -573,42 +574,29 @@ uint128_t uint128_t::operator-() const
     return ~*this + uint128_1;
 }
 
-const uint64_t &uint128_t::upper() const
+uint64_t uint128_t::upper() const
 {
     return UPPER;
 }
 
-const uint64_t &uint128_t::lower() const
+uint64_t uint128_t::lower() const
 {
     return LOWER;
 }
 
 uint8_t uint128_t::bits() const
 {
-    uint8_t out = 0;
     if (UPPER)
     {
-        out = 64;
-        uint64_t up = UPPER;
-        while (up)
-        {
-            up >>= 1;
-            out++;
-        }
+        return 64 + std::bit_width(UPPER);
     }
     else
     {
-        uint64_t low = LOWER;
-        while (low)
-        {
-            low >>= 1;
-            out++;
-        }
+        return std::bit_width(LOWER);
     }
-    return out;
 }
 
-std::string uint128_t::str(uint8_t base, const unsigned int &len) const
+std::string uint128_t::str(uint8_t base, unsigned int const len) const
 {
     if ((base < 2) || (base > 16))
     {

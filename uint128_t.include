@@ -370,14 +370,14 @@ class uint128_t{
         uint128_t operator-() const;
 
         // Get private values
-        const uint64_t & upper() const;
-        const uint64_t & lower() const;
+        uint64_t upper() const;
+        uint64_t lower() const;
 
         // Get bitsize of value
         uint8_t bits() const;
 
         // Get string representation of value
-        std::string str(uint8_t base = 10, const unsigned int & len = 0) const;
+        std::string str(uint8_t base = 10, unsigned int len = 0) const;
 };
 
 // useful values
