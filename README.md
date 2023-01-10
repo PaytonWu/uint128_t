@@ -32,7 +32,7 @@ All that needs to be done in code is `#include "uint128_t.h"`
 
 ```c++
 #include <iostream>
-#include "uint128_t.h"
+#include "uint128/uint128_t.h"
 
 int main() {
     uint128_t a = 1;
@@ -43,6 +43,6 @@ int main() {
 ```
 
 ### Compilation
-A C++ compiler supporting at least C++11 is required.
+A C++ compiler supporting at least C++20 is required.
 
 Compilation can be done by directly including `uint128_t.cpp` in your compile command, e.g. `g++ -std=c++20 main.cpp uint128_t.cpp`, or other ways, such as linking the `uint128_t.o` file, or creating a library, and linking the library in.
