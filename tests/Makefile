@@ -1,6 +1,6 @@
 CXX?=g++
 STANDARD?=c++20
-CXXFLAGS=-std=$(STANDARD) -Wall -pedantic -g -I../../googletest/googletest/include -I..
+CXXFLAGS=-std=$(STANDARD) -Wall -pedantic -g -I../../googletest/googletest/include -I../include -I../include/uint128
 LDFLAGS=-L../../googletest/build/install/lib -lgtest -lpthread
 TARGET=test
 
@@ -36,10 +36,10 @@ all: $(TARGET)
 
 .PHONY: clean clean-all
 
-$(TESTCASES): %.o : %.cpp ../uint128_t.h
+$(TESTCASES): %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-../uint128_t.o: ../uint128_t.h ../uint128_t.cpp ../uint128_t.include
+../uint128_t.o: ../uint128_t.cpp
 	$(CXX) $(CXXFLAGS) -c ../uint128_t.cpp -o $@
 
 $(TARGET): test.cpp ../uint128_t.o $(TESTCASES)

@@ -9,24 +9,24 @@
 const uint128_t uint128_0(0);
 const uint128_t uint128_1(1);
 
-uint128_t::uint128_t(const std::string &s, uint8_t base)
+uint128_t::uint128_t(const std::string &s, uint8_t const base)
 {
     init(s.c_str(), s.size(), base);
 }
 
-uint128_t::uint128_t(const char *s, const std::size_t len, uint8_t base)
+uint128_t::uint128_t(const char *s, const std::size_t len, uint8_t const base)
 {
     init(s, len, base);
 }
 
-uint128_t::uint128_t(const bool &b)
-    : uint128_t((uint8_t)b)
+uint128_t::uint128_t(bool const &b)
+    : uint128_t{static_cast<uint8_t>(b)}
 {
 }
 
-void uint128_t::init(const char *s, std::size_t len, uint8_t base)
+void uint128_t::init(char const *s, std::size_t len, uint8_t const base)
 {
-    if ((s == NULL) || !len || (s[0] == '\x00'))
+    if ((s == nullptr) || !len || (s[0] == '\x00'))
     {
         LOWER = UPPER = 0;
         return;
@@ -59,7 +59,7 @@ void uint128_t::init(const char *s, std::size_t len, uint8_t base)
     }
 }
 
-void uint128_t::_init_hex(const char *s, std::size_t len)
+void uint128_t::_init_hex(char const *s, std::size_t len)
 {
     // 2**128 = 0x100000000000000000000000000000000.
     static const std::size_t MAX_LEN = 32;
@@ -160,7 +160,7 @@ void uint128_t::_init_bin(const char *s, std::size_t len)
     }
 }
 
-uint128_t &uint128_t::operator=(const bool &rhs)
+uint128_t &uint128_t::operator=(bool const &rhs)
 {
     UPPER = 0;
     LOWER = rhs;
@@ -192,19 +192,19 @@ uint128_t::operator uint64_t() const
     return (uint64_t)LOWER;
 }
 
-uint128_t uint128_t::operator&(const uint128_t &rhs) const
+uint128_t uint128_t::operator&(uint128_t const &rhs) const
 {
     return uint128_t(UPPER & rhs.UPPER, LOWER & rhs.LOWER);
 }
 
-uint128_t &uint128_t::operator&=(const uint128_t &rhs)
+uint128_t &uint128_t::operator&=(uint128_t const &rhs)
 {
     UPPER &= rhs.UPPER;
     LOWER &= rhs.LOWER;
     return *this;
 }
 
-uint128_t uint128_t::operator|(const uint128_t &rhs) const
+uint128_t uint128_t::operator|(uint128_t const &rhs) const
 {
     return uint128_t(UPPER | rhs.UPPER, LOWER | rhs.LOWER);
 }
