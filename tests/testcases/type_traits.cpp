@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "uint128_t.h"
+#include "uint128/uint128_t.h"
 
 TEST(Type_Traits, is_arithmetic){
     EXPECT_EQ(std::is_arithmetic <uint128_t>::value, true);

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "uint128_t.h"
+#include "uint128/uint128_t.h"
 
 TEST(Comparison, equals){
     EXPECT_EQ( (uint128_t(0xdeadbeefULL) == uint128_t(0xdeadbeefULL)), true);
