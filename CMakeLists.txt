@@ -1,24 +1,48 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(
-    uint128_t
+    UINT128_T
     VERSION 0.1.0
     DESCRIPTION "An unsigned 128 bit integer type for C++"
-    LANGUAGES CXX)
+    LANGUAGES CXX
+)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(SRCS uint128_t.cpp)
+set(UINT128_LIBRARY_PATH lib)
+set(UINT128_LIBRARY uint128)
 
-set(UINT128_LIB uint128)
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
+    add_compile_options(
+        /Zc:__cplusplus       # https://docs.microsoft.com/en-us/cpp/build/reference/zc-cplusplus
+        /Zc:externConstexpr   # https://docs.microsoft.com/en-us/cpp/build/reference/zc-externconstexpr
+        /Zc:referenceBinding  # https://docs.microsoft.com/en-us/cpp/build/reference/zc-referencebinding-enforce-reference-binding-rules
+        /Zc:inline            # https://docs.microsoft.com/en-us/cpp/build/reference/zc-inline-remove-unreferenced-comdat
+        /Zc:rvalueCast        # https://docs.microsoft.com/en-us/cpp/build/reference/zc-rvaluecast-enforce-type-conversion-rules
+        /Zc:strictStrings     # https://docs.microsoft.com/en-us/cpp/build/reference/zc-strictstrings-disable-string-literal-type-conversion
+        /Zc:ternary           # https://docs.microsoft.com/en-us/cpp/build/reference/zc-ternary
+        /Zc:throwingNew       # https://docs.microsoft.com/en-us/cpp/build/reference/zc-throwingnew-assume-operator-new-throws
+        /Zc:char8_t
+        /Zc:hiddenFriend
+        /permissive-          # https://blogs.msdn.microsoft.com/vcblog/2016/11/16/permissive-switch/
+                              # https://blogs.msdn.microsoft.com/vcblog/2017/09/11/two-phase-name-lookup-support-comes-to-msvc/
+                              # https://docs.microsoft.com/en-us/cpp/build/reference/permissive-standards-conformance
+        /volatile:iso         # https://docs.microsoft.com/en-us/cpp/build/reference/volatile-volatile-keyword-interpretation
+        /GS
+        /Zi
+        /EHsc
+        /fp:precise
+        /errorReport:prompt
+        /diagnostics:caret    # https://docs.microsoft.com/en-us/cpp/build/reference/diagnostics-compiler-diagnostic-options
+        /utf-8                # https://docs.microsoft.com/en-us/cpp/build/reference/utf-8-set-source-and-executable-character-sets-to-utf-8
+        /WL                   # https://docs.microsoft.com/en-us/cpp/build/reference/wl-enable-one-line-diagnostics
+    )
+endif()
 
-add_library(${UINT128_LIB} ${SRCS})
-set_property(
-    TARGET uint128
-    PROPERTY POSITION_INDEPENDENT_CODE ON)
+add_subdirectory(${UINT128_LIBRARY_PATH})
 
 if (WITH_TESTS)
     enable_testing()
@@ -28,4 +52,5 @@ endif()
 install(
     DIRECTORY include/uint128
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-    COMPONENT devel)
+    COMPONENT devel
+)

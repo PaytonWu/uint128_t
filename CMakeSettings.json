@@ -21,7 +21,8 @@
                     "value": "OFF",
                     "type": "BOOL"
                 }
-            ]
+            ],
+            "intelliSenseMode": "windows-msvc-x64"
         }
     ]
 }

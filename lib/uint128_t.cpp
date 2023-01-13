@@ -1,7 +1,6 @@
-#include "include/uint128/uint128_t.build"
+#include "../include/uint128/uint128_t.h"
 
 #include <algorithm>
-#include <cassert>
 #include <cctype>
 #include <algorithm>
 #include <sstream>
@@ -9,22 +8,22 @@
 uint128_t const uint128_0(0);
 uint128_t const uint128_1(1);
 
-uint128_t::uint128_t(std::string const&s, uint8_t const base)
+uint128_t::uint128_t(std::string const & s, uint8_t const base)
 {
     init(s.c_str(), s.size(), base);
 }
 
-uint128_t::uint128_t(char const*s, std::size_t const len, uint8_t const base)
+uint128_t::uint128_t(char const * s, std::size_t const len, uint8_t const base)
 {
     init(s, len, base);
 }
 
-uint128_t::uint128_t(bool const &b)
-    : uint128_t{static_cast<uint8_t>(b)}
+uint128_t::uint128_t(bool const & b)
+    : uint128_t{ static_cast<uint8_t>(b) }
 {
 }
 
-void uint128_t::init(char const *s, std::size_t len, uint8_t const base)
+void uint128_t::init(char const * s, std::size_t len, uint8_t const base)
 {
     if ((s == nullptr) || !len || (s[0] == '\x00'))
     {
@@ -42,16 +41,16 @@ void uint128_t::init(char const *s, std::size_t len, uint8_t const base)
     switch (base)
     {
     case 16:
-        _init_hex(s, len);
+        init_hex(s, len);
         break;
     case 10:
-        _init_dec(s, len);
+        init_dec(s, len);
         break;
     case 8:
-        _init_oct(s, len);
+        init_oct(s, len);
         break;
     case 2:
-        _init_bin(s, len);
+        init_bin(s, len);
         break;
     default:
         // should probably throw error here
@@ -59,7 +58,7 @@ void uint128_t::init(char const *s, std::size_t len, uint8_t const base)
     }
 }
 
-void uint128_t::_init_hex(char const *s, std::size_t len)
+void uint128_t::init_hex(char const * s, std::size_t len)
 {
     // 2**128 = 0x100000000000000000000000000000000.
     static std::size_t constexpr MAX_LEN = 32;
@@ -85,10 +84,10 @@ void uint128_t::_init_hex(char const *s, std::size_t len)
     lower_s >> LOWER;
 }
 
-void uint128_t::_init_dec(char const*s, std::size_t len)
+void uint128_t::init_dec(char const * s, std::size_t const len)
 {
     // 2**128 = 340282366920938463463374607431768211456.
-    static std::size_t const MAX_LEN = 39;
+    static std::size_t constexpr MAX_LEN = 39;
 
     LOWER = UPPER = 0;
     if (!s || !len)
@@ -107,10 +106,10 @@ void uint128_t::_init_dec(char const*s, std::size_t len)
     }
 }
 
-void uint128_t::_init_oct(char const*s, std::size_t len)
+void uint128_t::init_oct(char const * s, std::size_t const len)
 {
     // 2**128 = 0o4000000000000000000000000000000000000000000.
-    static std::size_t const MAX_LEN = 43;
+    static std::size_t constexpr MAX_LEN = 43;
 
     LOWER = UPPER = 0;
     if (!s || !len)
@@ -129,10 +128,10 @@ void uint128_t::_init_oct(char const*s, std::size_t len)
     }
 }
 
-void uint128_t::_init_bin(char const*s, std::size_t len)
+void uint128_t::init_bin(char const * s, std::size_t const len)
 {
     // 2**128 = 0x100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.
-    static std::size_t const MAX_LEN = 128;
+    static std::size_t constexpr MAX_LEN = 128;
 
     LOWER = UPPER = 0;
     if (!s || !len)
@@ -160,7 +159,7 @@ void uint128_t::_init_bin(char const*s, std::size_t len)
     }
 }
 
-uint128_t &uint128_t::operator=(bool const &rhs)
+uint128_t & uint128_t::operator=(bool const & rhs)
 {
     UPPER = 0;
     LOWER = rhs;
@@ -192,36 +191,36 @@ uint128_t::operator uint64_t() const
     return LOWER;
 }
 
-uint128_t uint128_t::operator&(uint128_t const &rhs) const
+uint128_t uint128_t::operator&(uint128_t const & rhs) const
 {
-    return uint128_t(UPPER & rhs.UPPER, LOWER & rhs.LOWER);
+    return { UPPER & rhs.UPPER, LOWER & rhs.LOWER };
 }
 
-uint128_t &uint128_t::operator&=(uint128_t const &rhs)
+uint128_t & uint128_t::operator&=(uint128_t const & rhs)
 {
     UPPER &= rhs.UPPER;
     LOWER &= rhs.LOWER;
     return *this;
 }
 
-uint128_t uint128_t::operator|(uint128_t const &rhs) const
+uint128_t uint128_t::operator|(uint128_t const & rhs) const
 {
-    return uint128_t(UPPER | rhs.UPPER, LOWER | rhs.LOWER);
+    return { UPPER | rhs.UPPER, LOWER | rhs.LOWER };
 }
 
-uint128_t &uint128_t::operator|=(uint128_t const&rhs)
+uint128_t & uint128_t::operator|=(uint128_t const & rhs)
 {
     UPPER |= rhs.UPPER;
     LOWER |= rhs.LOWER;
     return *this;
 }
 
-uint128_t uint128_t::operator^(uint128_t const&rhs) const
+uint128_t uint128_t::operator^(uint128_t const & rhs) const
 {
-    return uint128_t(UPPER ^ rhs.UPPER, LOWER ^ rhs.LOWER);
+    return { UPPER ^ rhs.UPPER, LOWER ^ rhs.LOWER };
 }
 
-uint128_t &uint128_t::operator^=(uint128_t const&rhs)
+uint128_t & uint128_t::operator^=(uint128_t const & rhs)
 {
     UPPER ^= rhs.UPPER;
     LOWER ^= rhs.LOWER;
@@ -230,10 +229,10 @@ uint128_t &uint128_t::operator^=(uint128_t const&rhs)
 
 uint128_t uint128_t::operator~() const
 {
-    return uint128_t(~UPPER, ~LOWER);
+    return { ~UPPER, ~LOWER };
 }
 
-uint128_t uint128_t::operator<<(uint128_t const&rhs) const
+uint128_t uint128_t::operator<<(uint128_t const & rhs) const
 {
     if (uint64_t const shift = rhs.LOWER; static_cast<bool>(rhs.UPPER) || (shift >= 128))
     {
@@ -265,13 +264,13 @@ uint128_t uint128_t::operator<<(uint128_t const&rhs) const
     }
 }
 
-uint128_t &uint128_t::operator<<=(uint128_t const&rhs)
+uint128_t & uint128_t::operator<<=(uint128_t const & rhs)
 {
     *this = *this << rhs;
     return *this;
 }
 
-uint128_t uint128_t::operator>>(uint128_t const&rhs) const
+uint128_t uint128_t::operator>>(uint128_t const & rhs) const
 {
     if (uint64_t const shift = rhs.LOWER; static_cast<bool>(rhs.UPPER) || (shift >= 128))
     {
@@ -299,7 +298,7 @@ uint128_t uint128_t::operator>>(uint128_t const&rhs) const
     }
 }
 
-uint128_t &uint128_t::operator>>=(uint128_t const&rhs)
+uint128_t & uint128_t::operator>>=(uint128_t const & rhs)
 {
     *this = *this >> rhs;
     return *this;
@@ -310,27 +309,27 @@ bool uint128_t::operator!() const
     return !static_cast<bool>(UPPER | LOWER);
 }
 
-bool uint128_t::operator&&(uint128_t const&rhs) const
+bool uint128_t::operator&&(uint128_t const & rhs) const
 {
     return (static_cast<bool>(*this) && rhs);
 }
 
-bool uint128_t::operator||(uint128_t const&rhs) const
+bool uint128_t::operator||(uint128_t const & rhs) const
 {
     return (static_cast<bool>(*this) || rhs);
 }
 
-bool uint128_t::operator==(uint128_t const&rhs) const
+bool uint128_t::operator==(uint128_t const & rhs) const
 {
     return ((UPPER == rhs.UPPER) && (LOWER == rhs.LOWER));
 }
 
-bool uint128_t::operator!=(uint128_t const&rhs) const
+bool uint128_t::operator!=(uint128_t const & rhs) const
 {
     return ((UPPER != rhs.UPPER) | (LOWER != rhs.LOWER));
 }
 
-bool uint128_t::operator>(uint128_t const&rhs) const
+bool uint128_t::operator>(uint128_t const & rhs) const
 {
     if (UPPER == rhs.UPPER)
     {
@@ -339,7 +338,7 @@ bool uint128_t::operator>(uint128_t const&rhs) const
     return (UPPER > rhs.UPPER);
 }
 
-bool uint128_t::operator<(uint128_t const&rhs) const
+bool uint128_t::operator<(uint128_t const & rhs) const
 {
     if (UPPER == rhs.UPPER)
     {
@@ -348,44 +347,44 @@ bool uint128_t::operator<(uint128_t const&rhs) const
     return (UPPER < rhs.UPPER);
 }
 
-bool uint128_t::operator>=(uint128_t const&rhs) const
+bool uint128_t::operator>=(uint128_t const & rhs) const
 {
-    return ((*this > rhs) | (*this == rhs));
+    return *this > rhs || *this == rhs;
 }
 
-bool uint128_t::operator<=(uint128_t const&rhs) const
+bool uint128_t::operator<=(uint128_t const & rhs) const
 {
-    return ((*this < rhs) | (*this == rhs));
+    return *this < rhs || *this == rhs;
 }
 
-uint128_t uint128_t::operator+(uint128_t const&rhs) const
+uint128_t uint128_t::operator+(uint128_t const & rhs) const
 {
-    return uint128_t(UPPER + rhs.UPPER + ((LOWER + rhs.LOWER) < LOWER), LOWER + rhs.LOWER);
+    return { UPPER + rhs.UPPER + ((LOWER + rhs.LOWER) < LOWER), LOWER + rhs.LOWER };
 }
 
-uint128_t &uint128_t::operator+=(uint128_t const&rhs)
+uint128_t & uint128_t::operator+=(uint128_t const & rhs)
 {
     UPPER += rhs.UPPER + ((LOWER + rhs.LOWER) < LOWER);
     LOWER += rhs.LOWER;
     return *this;
 }
 
-uint128_t uint128_t::operator-(uint128_t const&rhs) const
+uint128_t uint128_t::operator-(uint128_t const & rhs) const
 {
-    return uint128_t(UPPER - rhs.UPPER - ((LOWER - rhs.LOWER) > LOWER), LOWER - rhs.LOWER);
+    return { UPPER - rhs.UPPER - ((LOWER - rhs.LOWER) > LOWER), LOWER - rhs.LOWER };
 }
 
-uint128_t &uint128_t::operator-=(uint128_t const&rhs)
+uint128_t & uint128_t::operator-=(uint128_t const & rhs)
 {
     *this = *this - rhs;
     return *this;
 }
 
-uint128_t uint128_t::operator*(uint128_t const&rhs) const
+uint128_t uint128_t::operator*(uint128_t const & rhs) const
 {
     // split values into 4 32-bit parts
-    uint64_t top[4] = {UPPER >> 32, UPPER & 0xffffffff, LOWER >> 32, LOWER & 0xffffffff};
-    uint64_t bottom[4] = {rhs.UPPER >> 32, rhs.UPPER & 0xffffffff, rhs.LOWER >> 32, rhs.LOWER & 0xffffffff};
+    uint64_t const top[4] = { UPPER >> 32, UPPER & 0xffffffff, LOWER >> 32, LOWER & 0xffffffff };
+    uint64_t const bottom[4] = { rhs.UPPER >> 32, rhs.UPPER & 0xffffffff, rhs.LOWER >> 32, rhs.LOWER & 0xffffffff };
     uint64_t products[4][4];
 
     // multiply each component of the values
@@ -427,16 +426,16 @@ uint128_t uint128_t::operator*(uint128_t const&rhs) const
     first32 &= 0xffffffff;
 
     // combine components
-    return uint128_t((first32 << 32) | second32, (third32 << 32) | fourth32);
+    return { (first32 << 32) | second32, (third32 << 32) | fourth32 };
 }
 
-uint128_t &uint128_t::operator*=(uint128_t const&rhs)
+uint128_t & uint128_t::operator*=(uint128_t const & rhs)
 {
     *this = *this * rhs;
     return *this;
 }
 
-static void convert_to_vector_big_endian(std::vector<uint8_t> &ret, uint64_t const&val)
+static void convert_to_vector_big_endian(std::vector<uint8_t> & ret, uint64_t const & val)
 {
     ret.push_back(static_cast<uint8_t>(val >> 56));
     ret.push_back(static_cast<uint8_t>(val >> 48));
@@ -448,10 +447,10 @@ static void convert_to_vector_big_endian(std::vector<uint8_t> &ret, uint64_t con
     ret.push_back(static_cast<uint8_t>(val));
 }
 
-void uint128_t::export_bits(std::vector<uint8_t> &ret) const
+void uint128_t::export_bits(std::vector<uint8_t> & ret) const
 {
-    convert_to_vector_big_endian(ret, const_cast<uint64_t const&>(UPPER));
-    convert_to_vector_big_endian(ret, const_cast<uint64_t const&>(LOWER));
+    convert_to_vector_big_endian(ret, const_cast<uint64_t const &>(UPPER));
+    convert_to_vector_big_endian(ret, const_cast<uint64_t const &>(LOWER));
 }
 
 std::vector<uint8_t> uint128_t::export_bits_compact() const
@@ -480,27 +479,30 @@ std::vector<uint8_t> uint128_t::export_bits_compact(std::endian const endian) co
     return res;
 }
 
-std::pair<uint128_t, uint128_t> uint128_t::divmod(uint128_t const&lhs, uint128_t const&rhs) const
+std::pair<uint128_t, uint128_t> uint128_t::divmod(uint128_t const & lhs, uint128_t const & rhs) const
 {
     // Save some calculations /////////////////////
     if (rhs == uint128_0)
     {
         throw std::domain_error("Error: division or modulus by 0");
     }
-    else if (rhs == uint128_1)
+
+    if (rhs == uint128_1)
     {
-        return std::pair<uint128_t, uint128_t>(lhs, uint128_0);
-    }
-    else if (lhs == rhs)
-    {
-        return std::pair<uint128_t, uint128_t>(uint128_1, uint128_0);
-    }
-    else if ((lhs == uint128_0) || (lhs < rhs))
-    {
-        return std::pair<uint128_t, uint128_t>(uint128_0, lhs);
+        return { lhs, uint128_0 };
     }
 
-    std::pair<uint128_t, uint128_t> qr(uint128_0, uint128_0);
+    if (lhs == rhs)
+    {
+        return { uint128_1, uint128_0 };
+    }
+
+    if ((lhs == uint128_0) || (lhs < rhs))
+    {
+        return { uint128_0, lhs };
+    }
+
+    std::pair qr{ uint128_0, uint128_0 };
     for (uint8_t x = lhs.bits(); x > 0; x--)
     {
         qr.first <<= uint128_1;
@@ -520,29 +522,29 @@ std::pair<uint128_t, uint128_t> uint128_t::divmod(uint128_t const&lhs, uint128_t
     return qr;
 }
 
-uint128_t uint128_t::operator/(uint128_t const&rhs) const
+uint128_t uint128_t::operator/(uint128_t const & rhs) const
 {
     return divmod(*this, rhs).first;
 }
 
-uint128_t &uint128_t::operator/=(uint128_t const&rhs)
+uint128_t & uint128_t::operator/=(uint128_t const & rhs)
 {
     *this = *this / rhs;
     return *this;
 }
 
-uint128_t uint128_t::operator%(uint128_t const&rhs) const
+uint128_t uint128_t::operator%(uint128_t const & rhs) const
 {
     return divmod(*this, rhs).second;
 }
 
-uint128_t &uint128_t::operator%=(uint128_t const&rhs)
+uint128_t & uint128_t::operator%=(uint128_t const & rhs)
 {
     *this = *this % rhs;
     return *this;
 }
 
-uint128_t &uint128_t::operator++()
+uint128_t & uint128_t::operator++()
 {
     return *this += uint128_1;
 }
@@ -550,11 +552,11 @@ uint128_t &uint128_t::operator++()
 uint128_t uint128_t::operator++(int)
 {
     uint128_t temp(*this);
-    ++*this;
+    ++ * this;
     return temp;
 }
 
-uint128_t &uint128_t::operator--()
+uint128_t & uint128_t::operator--()
 {
     return *this -= uint128_1;
 }
@@ -562,7 +564,7 @@ uint128_t &uint128_t::operator--()
 uint128_t uint128_t::operator--(int)
 {
     uint128_t temp(*this);
-    --*this;
+    -- * this;
     return temp;
 }
 
@@ -590,28 +592,27 @@ uint8_t uint128_t::bits() const
 {
     if (UPPER)
     {
-        return 64 + std::bit_width(UPPER);
+        return 64 + static_cast<uint8_t>(std::bit_width(UPPER));
     }
-    else
-    {
-        return std::bit_width(LOWER);
-    }
+
+    return static_cast<uint8_t>(std::bit_width(LOWER));
 }
 
-std::string uint128_t::str(uint8_t base, unsigned int const len) const
+std::string uint128_t::str(uint8_t const base, unsigned int const len) const
 {
     if ((base < 2) || (base > 16))
     {
         throw std::invalid_argument("Base must be in the range [2, 16]");
     }
-    std::string out = "";
+
+    std::string out;
     if (!(*this))
     {
         out = "0";
     }
     else
     {
-        std::pair<uint128_t, uint128_t> qr(*this, uint128_0);
+        std::pair qr{ *this, uint128_0 };
         do
         {
             qr = divmod(qr.first, base);
@@ -625,107 +626,107 @@ std::string uint128_t::str(uint8_t base, unsigned int const len) const
     return out;
 }
 
-uint128_t operator<<(bool const&lhs, uint128_t const&rhs)
+uint128_t operator<<(bool const & lhs, uint128_t const & rhs)
 {
     return uint128_t(lhs) << rhs;
 }
 
-uint128_t operator<<(uint8_t const&lhs, uint128_t const&rhs)
+uint128_t operator<<(uint8_t const & lhs, uint128_t const & rhs)
 {
     return uint128_t(lhs) << rhs;
 }
 
-uint128_t operator<<(uint16_t const&lhs, uint128_t const&rhs)
+uint128_t operator<<(uint16_t const & lhs, uint128_t const & rhs)
 {
     return uint128_t(lhs) << rhs;
 }
 
-uint128_t operator<<(uint32_t const&lhs, uint128_t const&rhs)
+uint128_t operator<<(uint32_t const & lhs, uint128_t const & rhs)
 {
     return uint128_t(lhs) << rhs;
 }
 
-uint128_t operator<<(uint64_t const&lhs, uint128_t const&rhs)
+uint128_t operator<<(uint64_t const & lhs, uint128_t const & rhs)
 {
     return uint128_t(lhs) << rhs;
 }
 
-uint128_t operator<<(int8_t const&lhs, uint128_t const&rhs)
+uint128_t operator<<(int8_t const & lhs, uint128_t const & rhs)
 {
     return uint128_t(lhs) << rhs;
 }
 
-uint128_t operator<<(int16_t const&lhs, uint128_t const&rhs)
+uint128_t operator<<(int16_t const & lhs, uint128_t const & rhs)
 {
     return uint128_t(lhs) << rhs;
 }
 
-uint128_t operator<<(int32_t const&lhs, uint128_t const&rhs)
+uint128_t operator<<(int32_t const & lhs, uint128_t const & rhs)
 {
     return uint128_t(lhs) << rhs;
 }
 
-uint128_t operator<<(int64_t const&lhs, uint128_t const&rhs)
+uint128_t operator<<(int64_t const & lhs, uint128_t const & rhs)
 {
     return uint128_t(lhs) << rhs;
 }
 
-uint128_t operator>>(bool const&lhs, uint128_t const&rhs)
+uint128_t operator>>(bool const & lhs, uint128_t const & rhs)
 {
     return uint128_t(lhs) >> rhs;
 }
 
-uint128_t operator>>(uint8_t const&lhs, uint128_t const&rhs)
+uint128_t operator>>(uint8_t const & lhs, uint128_t const & rhs)
 {
     return uint128_t(lhs) >> rhs;
 }
 
-uint128_t operator>>(uint16_t const&lhs, uint128_t const&rhs)
+uint128_t operator>>(uint16_t const & lhs, uint128_t const & rhs)
 {
     return uint128_t(lhs) >> rhs;
 }
 
-uint128_t operator>>(uint32_t const&lhs, uint128_t const&rhs)
+uint128_t operator>>(uint32_t const & lhs, uint128_t const & rhs)
 {
     return uint128_t(lhs) >> rhs;
 }
 
-uint128_t operator>>(uint64_t const&lhs, uint128_t const&rhs)
+uint128_t operator>>(uint64_t const & lhs, uint128_t const & rhs)
 {
     return uint128_t(lhs) >> rhs;
 }
 
-uint128_t operator>>(int8_t const&lhs, uint128_t const&rhs)
+uint128_t operator>>(int8_t const & lhs, uint128_t const & rhs)
 {
     return uint128_t(lhs) >> rhs;
 }
 
-uint128_t operator>>(int16_t const&lhs, uint128_t const&rhs)
+uint128_t operator>>(int16_t const & lhs, uint128_t const & rhs)
 {
     return uint128_t(lhs) >> rhs;
 }
 
-uint128_t operator>>(int32_t const&lhs, uint128_t const&rhs)
+uint128_t operator>>(int32_t const & lhs, uint128_t const & rhs)
 {
     return uint128_t(lhs) >> rhs;
 }
 
-uint128_t operator>>(int64_t const&lhs, uint128_t const&rhs)
+uint128_t operator>>(int64_t const & lhs, uint128_t const & rhs)
 {
     return uint128_t(lhs) >> rhs;
 }
 
-std::ostream &operator<<(std::ostream &stream, uint128_t const&rhs)
+std::ostream & operator<<(std::ostream & stream, uint128_t const & rhs)
 {
-    if (stream.flags() & stream.oct)
+    if (stream.flags() & std::ostream::oct)
     {
         stream << rhs.str(8);
     }
-    else if (stream.flags() & stream.dec)
+    else if (stream.flags() & std::ostream::dec)
     {
         stream << rhs.str(10);
     }
-    else if (stream.flags() & stream.hex)
+    else if (stream.flags() & std::ostream::hex)
     {
         stream << rhs.str(16);
     }
