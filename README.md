@@ -28,7 +28,7 @@ integer type in C++. It's meant to be used like a standard
 by C/C++.
 
 ### In Code
-All that needs to be done in code is `#include "uint128_t.h"`
+All that needs to be done in code is `#include "uint128/uint128_t.h"`
 
 ```c++
 #include <iostream>
@@ -45,4 +45,12 @@ int main() {
 ### Compilation
 A C++ compiler supporting at least C++20 is required.
 
-Compilation can be done by directly including `uint128_t.cpp` in your compile command, e.g. `g++ -std=c++20 main.cpp uint128_t.cpp`, or other ways, such as linking the `uint128_t.o` file, or creating a library, and linking the library in.
+Compilation can be done by using cmake toolchain.
+
+1. `mkdir build && cd build`
+2. `cmake ..`
+3. `ninja`
+
+It builds static library by default. For building shared library, run `cmake -DBUILD_SHARED_LIBS=ON ..` at step #2.
+
+If you want to build and run tests, pass `-DWITH_TESTS=ON` to cmake at step #2 and executing `ctest` after step #3.
