@@ -304,44 +304,6 @@ bool uint128_t::operator||(uint128_t const & rhs) const
     return (static_cast<bool>(*this) || rhs);
 }
 
-bool uint128_t::operator==(uint128_t const & rhs) const
-{
-    return ((upper_ == rhs.upper_) && (lower_ == rhs.lower_));
-}
-
-bool uint128_t::operator!=(uint128_t const & rhs) const
-{
-    return ((upper_ != rhs.upper_) | (lower_ != rhs.lower_));
-}
-
-bool uint128_t::operator>(uint128_t const & rhs) const
-{
-    if (upper_ == rhs.upper_)
-    {
-        return (lower_ > rhs.lower_);
-    }
-    return (upper_ > rhs.upper_);
-}
-
-bool uint128_t::operator<(uint128_t const & rhs) const
-{
-    if (upper_ == rhs.upper_)
-    {
-        return (lower_ < rhs.lower_);
-    }
-    return (upper_ < rhs.upper_);
-}
-
-bool uint128_t::operator>=(uint128_t const & rhs) const
-{
-    return *this > rhs || *this == rhs;
-}
-
-bool uint128_t::operator<=(uint128_t const & rhs) const
-{
-    return *this < rhs || *this == rhs;
-}
-
 uint128_t uint128_t::operator+(uint128_t const & rhs) const
 {
     return { upper_ + rhs.upper_ + ((lower_ + rhs.lower_) < lower_), lower_ + rhs.lower_ };

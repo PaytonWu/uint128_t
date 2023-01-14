@@ -36,6 +36,7 @@
 #include "uint128_t_config.h"
 
 #include <bit>
+#include <compare>
 #include <concepts>
 #include <cstdint>
 #include <ostream>
@@ -70,10 +71,10 @@ namespace std
 class uint128_t
 {
 private:
-#ifdef __BIG_ENDIAN__
+#if defined(__BIG_ENDIAN__)
     uint64_t upper_{}, lower_{};
 #endif
-#ifdef __LITTLE_ENDIAN__
+#if defined(__LITTLE_ENDIAN__)
     uint64_t lower_{}, upper_{};
 #endif
 
@@ -94,10 +95,10 @@ public:
 
     template <std::integral T>
     constexpr uint128_t(T const rhs)
-#ifdef __BIG_ENDIAN__
+#if defined(__BIG_ENDIAN__)
         : upper_{ 0 }, lower_{ static_cast<uint64_t>(rhs) }
 #endif
-#ifdef __LITTLE_ENDIAN__
+#if defined(__LITTLE_ENDIAN__)
         : lower_{ static_cast<uint64_t>(rhs) }, upper_{ 0 }
 #endif
     {
@@ -111,10 +112,10 @@ public:
     }
 
     constexpr uint128_t(std::integral auto const & upper_rhs, std::integral auto const & lower_rhs)
-#ifdef __BIG_ENDIAN__
+#if defined(__BIG_ENDIAN__)
         : UPPER(upper_rhs), LOWER(lower_rhs)
 #endif
-#ifdef __LITTLE_ENDIAN__
+#if defined(__LITTLE_ENDIAN__)
         : lower_(lower_rhs), upper_(upper_rhs)
 #endif
     {
@@ -260,46 +261,34 @@ public:
     }
 
     // Comparison Operators
-    bool operator==(uint128_t const & rhs) const;
-
-    bool operator==(std::integral auto const rhs) const
+    constexpr bool operator==(uint128_t const & rhs) const = default;
+#if defined(__LITTLE_ENDIAN__)
+    constexpr std::strong_ordering operator<=>(uint128_t const & rhs) const
     {
-        return (!upper_ && (lower_ == static_cast<uint64_t>(rhs)));
+        if (upper_ == rhs.upper_)
+        {
+            return lower_ <=> rhs.lower_;
+        }
+
+        return upper_ <=> rhs.upper_;
+    }
+#elif defined(__BIG_ENDIAN__)
+    constexpr std::strong_ordering operator<=>(uint128_t const & rhs) const = default;
+#endif
+
+    constexpr bool operator==(std::integral auto const rhs) const
+    {
+        return !upper_ && lower_ == static_cast<uint64_t>(rhs);
     }
 
-    bool operator!=(uint128_t const & rhs) const;
-
-    bool operator!=(std::integral auto const & rhs) const
+    constexpr std::strong_ordering operator<=>(std::integral auto const & rhs) const
     {
-        return (upper_ || (lower_ != static_cast<uint64_t>(rhs)));
-    }
+        if (upper_ == 0)
+        {
+            return lower_ <=> static_cast<uint64_t>(rhs);
+        }
 
-    bool operator>(uint128_t const & rhs) const;
-
-    bool operator>(std::integral auto const & rhs) const
-    {
-        return (upper_ || (lower_ > static_cast<uint64_t>(rhs)));
-    }
-
-    bool operator<(uint128_t const & rhs) const;
-
-    bool operator<(std::integral auto const & rhs) const
-    {
-        return (!upper_) ? (lower_ < static_cast<uint64_t>(rhs)) : false;
-    }
-
-    bool operator>=(uint128_t const & rhs) const;
-
-    bool operator>=(std::integral auto const & rhs) const
-    {
-        return ((*this > rhs) || (*this == rhs));
-    }
-
-    bool operator<=(uint128_t const & rhs) const;
-
-    bool operator<=(std::integral auto const & rhs) const
-    {
-        return ((*this < rhs) || (*this == rhs));
+        return std::strong_ordering::greater;
     }
 
     // Arithmetic Operators
