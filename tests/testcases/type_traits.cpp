@@ -5,13 +5,13 @@
 #include "uint128/uint128_t.h"
 
 TEST(Type_Traits, is_arithmetic){
-    EXPECT_EQ(std::is_arithmetic <uint128_t>::value, true);
+    EXPECT_TRUE(std::is_arithmetic_v<uint128_t>);
 }
 
 TEST(Type_Traits, is_integral){
-    EXPECT_EQ(std::is_integral <uint128_t>::value, true);
+    EXPECT_TRUE(std::is_integral_v<uint128_t>);
 }
 
 TEST(Type_Traits, is_unsigned){
-    EXPECT_EQ(std::is_unsigned <uint128_t>::value, true);
+    EXPECT_TRUE(std::is_unsigned_v<uint128_t>);
 }
