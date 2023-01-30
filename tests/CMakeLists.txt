@@ -8,6 +8,7 @@ endif()
 aux_source_directory(testcases UINT128_TEST_SOURCES)
 
 add_executable(tests ${UINT128_TEST_SOURCES})
+add_dependencies(tests ${UINT128_LIBRARY})
 
 target_include_directories(tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 target_link_directories(tests PRIVATE ${PROJECT_BINARY_DIR})
