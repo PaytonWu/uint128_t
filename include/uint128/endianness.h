@@ -1,5 +1,5 @@
-#ifndef _ENDIANNESS_H_
-#define _ENDIANNESS_H_
+#ifndef ENDIANNESS_H
+#define ENDIANNESS_H
 #if defined(__BYTE_ORDER) && __BYTE_ORDER == __BIG_ENDIAN || \
     defined(__BIG_ENDIAN__) ||                               \
     defined(__ARMEB__) ||                                    \

@@ -3,8 +3,8 @@
 #include "uint128/uint128_t.h"
 
 TEST(Assignment, all){
-    const uint128_t t_1   = true;
-    const uint128_t f_1   = false;
+    const uint128_t t_1 = uint128_t{ true };
+    const uint128_t f_1 = uint128_t{ false };
     const uint128_t u8_1  = 0x01;
     const uint128_t u16_1 = 0x0123;
     const uint128_t u32_1 = 0x01234567;

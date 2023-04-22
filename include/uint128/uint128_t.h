@@ -33,6 +33,7 @@
 #define UINT128_H  // NOLINT(clang-diagnostic-unused-macros)
 #pragma once
 
+#include "endianness.h"
 #include "uint128_t_config.h"
 
 #include <algorithm>
@@ -49,7 +50,6 @@
 #include <utility>
 #include <vector>
 
-#include "endianness.h"
 
 class UINT128_T_API uint128_t;
 
@@ -96,7 +96,7 @@ public:
         init(s, len, base);
     }
 
-    constexpr uint128_t(bool const b) : uint128_t{ static_cast<uint8_t>(b) } {
+    constexpr explicit uint128_t(bool const b) : uint128_t{ static_cast<uint8_t>(b) } {
     }
 
     template <std::integral T>
