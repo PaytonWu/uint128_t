@@ -6,72 +6,6 @@
 #include <sstream>
 
 
-uint128_t::operator bool() const
-{
-    return static_cast<bool>(upper_ | lower_);
-}
-
-uint128_t::operator uint8_t() const
-{
-    return static_cast<uint8_t>(lower_);
-}
-
-uint128_t::operator uint16_t() const
-{
-    return static_cast<uint16_t>(lower_);
-}
-
-uint128_t::operator uint32_t() const
-{
-    return static_cast<uint32_t>(lower_);
-}
-
-uint128_t::operator uint64_t() const
-{
-    return lower_;
-}
-
-uint128_t uint128_t::operator&(uint128_t const & rhs) const
-{
-    return { upper_ & rhs.upper_, lower_ & rhs.lower_ };
-}
-
-uint128_t & uint128_t::operator&=(uint128_t const & rhs)
-{
-    upper_ &= rhs.upper_;
-    lower_ &= rhs.lower_;
-    return *this;
-}
-
-uint128_t uint128_t::operator|(uint128_t const & rhs) const
-{
-    return { upper_ | rhs.upper_, lower_ | rhs.lower_ };
-}
-
-uint128_t & uint128_t::operator|=(uint128_t const & rhs)
-{
-    upper_ |= rhs.upper_;
-    lower_ |= rhs.lower_;
-    return *this;
-}
-
-uint128_t uint128_t::operator^(uint128_t const & rhs) const
-{
-    return { upper_ ^ rhs.upper_, lower_ ^ rhs.lower_ };
-}
-
-uint128_t & uint128_t::operator^=(uint128_t const & rhs)
-{
-    upper_ ^= rhs.upper_;
-    lower_ ^= rhs.lower_;
-    return *this;
-}
-
-uint128_t uint128_t::operator~() const
-{
-    return { ~upper_, ~lower_ };
-}
-
 uint128_t uint128_t::operator<<(uint128_t const & rhs) const
 {
     if (uint64_t const shift = rhs.lower_; static_cast<bool>(rhs.upper_) || (shift >= 128))
@@ -237,51 +171,6 @@ uint128_t & uint128_t::operator*=(uint128_t const & rhs)
     return *this;
 }
 
-static void convert_to_vector_big_endian(uint64_t const & val, std::vector<uint8_t> & ret)
-{
-    ret.push_back(static_cast<uint8_t>(val >> 56));
-    ret.push_back(static_cast<uint8_t>(val >> 48));
-    ret.push_back(static_cast<uint8_t>(val >> 40));
-    ret.push_back(static_cast<uint8_t>(val >> 32));
-    ret.push_back(static_cast<uint8_t>(val >> 24));
-    ret.push_back(static_cast<uint8_t>(val >> 16));
-    ret.push_back(static_cast<uint8_t>(val >> 8));
-    ret.push_back(static_cast<uint8_t>(val));
-}
-
-void uint128_t::export_bits(std::vector<uint8_t> & ret) const
-{
-    convert_to_vector_big_endian(upper_, ret);
-    convert_to_vector_big_endian(lower_, ret);
-    assert(ret.size() == 16);
-}
-
-std::vector<uint8_t> uint128_t::export_bits_compact() const
-{
-    std::vector<uint8_t> ret;
-    ret.reserve(16);
-    export_bits(ret);
-    assert(ret.size() == 16);
-
-    int i = 0;
-    while (i < 16 && ret[i] == 0)
-    {
-        ++i;
-    }
-    ret.erase(std::begin(ret), std::next(std::begin(ret), i));
-    return ret;
-}
-
-std::vector<uint8_t> uint128_t::export_bits_compact(std::endian const endian) const
-{
-    auto res = export_bits_compact();
-    if (endian == std::endian::little)
-    {
-        std::ranges::reverse(res);
-    }
-
-    return res;
-}
 
 std::pair<uint128_t, uint128_t> uint128_t::divmod(uint128_t const & lhs, uint128_t const & rhs) const
 {

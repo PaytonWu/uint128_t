@@ -146,58 +146,117 @@ public:
     }
 
     // Typecast Operators
-    explicit operator bool() const;
-    operator uint8_t() const;
-    operator uint16_t() const;
-    operator uint32_t() const;
-    operator uint64_t() const;
+    constexpr explicit operator bool() const noexcept {
+        return static_cast<bool>(upper_ | lower_);
+    }
+
+    constexpr operator uint8_t() const noexcept {
+        return static_cast<uint8_t>(lower_);
+    }
+
+    constexpr operator uint16_t() const noexcept {
+        return static_cast<uint16_t>(lower_);
+    }
+
+    constexpr operator uint32_t() const noexcept {
+        return static_cast<uint32_t>(lower_);
+    }
+
+    constexpr operator uint64_t() const noexcept {
+        return lower_;
+    }
 
     // Bitwise Operators
-    uint128_t operator&(uint128_t const & rhs) const;
+    constexpr uint128_t operator&(uint128_t const & rhs) const noexcept {
+               return { upper_ & rhs.upper_, lower_ & rhs.lower_ };
+    }
 
-    void export_bits(std::vector<uint8_t> & ret) const;
-    [[nodiscard]] std::vector<uint8_t> export_bits_compact() const;
-    [[nodiscard]] std::vector<uint8_t> export_bits_compact(std::endian endian) const;
-
-    uint128_t operator&(std::integral auto const & rhs) const {
+    constexpr uint128_t operator&(std::integral auto const & rhs) const noexcept {
         return { 0, lower_ & static_cast<uint64_t>(rhs) };
     }
 
-    uint128_t & operator&=(uint128_t const & rhs);
+    constexpr uint128_t & operator&=(uint128_t const & rhs) {
+        upper_ &= rhs.upper_;
+        lower_ &= rhs.lower_;
+        return *this;
+    }
 
-    uint128_t & operator&=(std::integral auto const & rhs) {
+    constexpr uint128_t & operator&=(std::integral auto const & rhs) noexcept {
         upper_ = 0;
         lower_ &= rhs;
         return *this;
     }
 
-    uint128_t operator|(uint128_t const & rhs) const;
+    constexpr uint128_t operator|(uint128_t const & rhs) const noexcept {
+               return { upper_ | rhs.upper_, lower_ | rhs.lower_ };
+    }
 
-    uint128_t operator|(std::integral auto const & rhs) const {
+    constexpr uint128_t operator|(std::integral auto const & rhs) const {
         return { upper_, lower_ | static_cast<uint64_t>(rhs) };
     }
 
-    uint128_t & operator|=(uint128_t const & rhs);
+    constexpr uint128_t & operator|=(uint128_t const & rhs) noexcept {
+        upper_ |= rhs.upper_;
+        lower_ |= rhs.lower_;
+        return *this;
+    }
 
-    uint128_t & operator|=(std::integral auto const & rhs) {
+    constexpr uint128_t & operator|=(std::integral auto const & rhs) noexcept {
         lower_ |= static_cast<uint64_t>(rhs);
         return *this;
     }
 
-    uint128_t operator^(uint128_t const & rhs) const;
+    constexpr uint128_t operator^(uint128_t const & rhs) const noexcept {
+        return { upper_ ^ rhs.upper_, lower_ ^ rhs.lower_ };
+    }
 
-    uint128_t operator^(std::integral auto const & rhs) const {
+    constexpr uint128_t operator^(std::integral auto const & rhs) const noexcept {
         return { upper_, lower_ ^ static_cast<uint64_t>(rhs) };
     }
 
-    uint128_t & operator^=(uint128_t const & rhs);
+    constexpr uint128_t & operator^=(uint128_t const & rhs) noexcept {
+        upper_ ^= rhs.upper_;
+        lower_ ^= rhs.lower_;
+        return *this;
+    }
 
-    uint128_t & operator^=(std::integral auto const & rhs) {
+    constexpr uint128_t & operator^=(std::integral auto const & rhs) noexcept {
         lower_ ^= static_cast<uint64_t>(rhs);
         return *this;
     }
 
-    uint128_t operator~() const;
+    constexpr uint128_t operator~() const noexcept {
+        return { ~upper_, ~lower_ };
+    }
+
+    constexpr void export_bits(std::vector<uint8_t> & ret) const noexcept {
+        convert_to_vector_big_endian(upper_, ret);
+        convert_to_vector_big_endian(lower_, ret);
+        assert(ret.size() == 16);
+    }
+
+    [[nodiscard]] constexpr std::vector<uint8_t> export_bits_compact() const {
+        std::vector<uint8_t> ret;
+        ret.reserve(16);
+        export_bits(ret);
+        assert(ret.size() == 16);
+
+        int i = 0;
+        while (i < 16 && ret[i] == 0) {
+            ++i;
+        }
+        ret.erase(std::begin(ret), std::next(std::begin(ret), i));
+        return ret;
+    }
+
+    [[nodiscard]] constexpr std::vector<uint8_t> export_bits_compact(std::endian const endian) const {
+        auto res = export_bits_compact();
+        if (endian == std::endian::little) {
+            std::ranges::reverse(res);
+        }
+
+        return res;
+    }
 
     // Bit Shift Operators
     uint128_t operator<<(uint128_t const & rhs) const;
@@ -424,6 +483,17 @@ private:
             lower_ <<= 1;
             lower_ |= *s - '0';
         }
+    }
+
+    constexpr static void convert_to_vector_big_endian(uint64_t const & val, std::vector<uint8_t> & ret) {
+        ret.push_back(static_cast<uint8_t>(val >> 56));
+        ret.push_back(static_cast<uint8_t>(val >> 48));
+        ret.push_back(static_cast<uint8_t>(val >> 40));
+        ret.push_back(static_cast<uint8_t>(val >> 32));
+        ret.push_back(static_cast<uint8_t>(val >> 24));
+        ret.push_back(static_cast<uint8_t>(val >> 16));
+        ret.push_back(static_cast<uint8_t>(val >> 8));
+        ret.push_back(static_cast<uint8_t>(val));
     }
 
 public:
