@@ -12,7 +12,7 @@ TEST(Arithmetic, divide){
 
     EXPECT_EQ(big_val   / big_val,   1);
 
-    EXPECT_THROW(uint128_t(1) / uint128_t(0), std::domain_error);
+    EXPECT_THROW(auto r = uint128_t(1) / uint128_t(0), std::domain_error);
 }
 
 TEST(External, divide){

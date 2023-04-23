@@ -14,7 +14,7 @@ TEST(Arithmetic, modulo){
     EXPECT_EQ(val_0 % val_mod, 0);
 
     // mod 0
-    EXPECT_THROW(uint128_t(1) % uint128_t(0), std::domain_error);
+    EXPECT_THROW(auto r = uint128_t(1) % uint128_t(0), std::domain_error);
 }
 
 TEST(External, modulo){

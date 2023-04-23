@@ -33,8 +33,11 @@
 #define UINT128_H  // NOLINT(clang-diagnostic-unused-macros)
 #pragma once
 
+#if !defined(__cplusplus) || __cplusplus < 202002L
+#   error "C++20 or above is required"
+#endif
+
 #include "endianness.h"
-#include "uint128_t_config.h"
 
 #include <algorithm>
 #include <bit>
@@ -50,8 +53,7 @@
 #include <utility>
 #include <vector>
 
-
-class UINT128_T_API uint128_t;
+class uint128_t;
 
 // Give uint128_t type traits
 namespace std {
@@ -69,7 +71,7 @@ struct is_arithmetic<uint128_t> : true_type {
 
 }
 
-class uint128_t {
+class [[nodiscard]] uint128_t {
 private:
 #if defined(__BIG_ENDIAN__)
     uint64_t upper_{}, lower_{};
@@ -108,28 +110,38 @@ public:
         : lower_{ static_cast<uint64_t>(rhs) }, upper_{ 0 }
 #endif
     {
-        if (std::is_signed_v<T>) {
+        if constexpr (std::is_signed_v<T>) {
             if (rhs < 0) {
                 upper_ = -1;
             }
         }
     }
 
-    constexpr uint128_t(std::integral auto const & upper_rhs, std::integral auto const & lower_rhs)
+    constexpr uint128_t(std::unsigned_integral auto const upper_rhs, std::unsigned_integral auto const lower_rhs)
 #if defined(__BIG_ENDIAN__)
-        : UPPER(upper_rhs), LOWER(lower_rhs)
+        : upper_{ upper_rhs }, lower_{ lower_rhs }
 #endif
 #if defined(__LITTLE_ENDIAN__)
-        : lower_(lower_rhs), upper_(upper_rhs)
+        : lower_{ lower_rhs }, upper_{ upper_rhs }
+#endif
+    {
+    }
+
+    constexpr uint128_t(std::integral auto const upper_rhs, std::integral auto const lower_rhs)
+#if defined(__BIG_ENDIAN__)
+        : upper_{ static_cast<uint64_t>(upper_rhs) }, lower_{ static_cast<uint64_t>(lower_rhs) }
+#endif
+#if defined(__LITTLE_ENDIAN__)
+        : lower_{ static_cast<uint64_t>(lower_rhs) }, upper_{ static_cast<uint64_t>(upper_rhs) }
 #endif
     {
     }
 
     template <std::integral T>
-    constexpr uint128_t & operator=(T const rhs) {
+    constexpr auto operator=(T const rhs) -> uint128_t & {
         upper_ = 0;
 
-        if (std::is_signed_v<T>) {
+        if constexpr (std::is_signed_v<T>) {
             if (rhs < 0) {
                 upper_ = -1;
             }
@@ -139,7 +151,7 @@ public:
         return *this;
     }
 
-    constexpr uint128_t & operator=(bool const rhs) {
+    constexpr auto operator=(bool const rhs) -> uint128_t & {
         upper_ = 0;
         lower_ = rhs;
         return *this;
@@ -167,65 +179,65 @@ public:
     }
 
     // Bitwise Operators
-    constexpr uint128_t operator&(uint128_t const & rhs) const noexcept {
-               return { upper_ & rhs.upper_, lower_ & rhs.lower_ };
+    constexpr auto operator&(uint128_t const rhs) const noexcept -> uint128_t {
+        return { upper_ & rhs.upper_, lower_ & rhs.lower_ };
     }
 
-    constexpr uint128_t operator&(std::integral auto const & rhs) const noexcept {
+    constexpr auto operator&(std::integral auto const rhs) const noexcept -> uint128_t {
         return { 0, lower_ & static_cast<uint64_t>(rhs) };
     }
 
-    constexpr uint128_t & operator&=(uint128_t const & rhs) {
+    constexpr auto operator&=(uint128_t const rhs) -> uint128_t & {
         upper_ &= rhs.upper_;
         lower_ &= rhs.lower_;
         return *this;
     }
 
-    constexpr uint128_t & operator&=(std::integral auto const & rhs) noexcept {
+    constexpr auto operator&=(std::integral auto const rhs) noexcept -> uint128_t & {
         upper_ = 0;
         lower_ &= rhs;
         return *this;
     }
 
-    constexpr uint128_t operator|(uint128_t const & rhs) const noexcept {
+    constexpr auto operator|(uint128_t const rhs) const noexcept -> uint128_t {
                return { upper_ | rhs.upper_, lower_ | rhs.lower_ };
     }
 
-    constexpr uint128_t operator|(std::integral auto const & rhs) const {
+    constexpr auto operator|(std::integral auto const rhs) const -> uint128_t {
         return { upper_, lower_ | static_cast<uint64_t>(rhs) };
     }
 
-    constexpr uint128_t & operator|=(uint128_t const & rhs) noexcept {
+    constexpr auto operator|=(uint128_t const rhs) noexcept -> uint128_t & {
         upper_ |= rhs.upper_;
         lower_ |= rhs.lower_;
         return *this;
     }
 
-    constexpr uint128_t & operator|=(std::integral auto const & rhs) noexcept {
+    constexpr auto operator|=(std::integral auto const rhs) noexcept -> uint128_t & {
         lower_ |= static_cast<uint64_t>(rhs);
         return *this;
     }
 
-    constexpr uint128_t operator^(uint128_t const & rhs) const noexcept {
+    constexpr auto operator^(uint128_t const rhs) const noexcept -> uint128_t {
         return { upper_ ^ rhs.upper_, lower_ ^ rhs.lower_ };
     }
 
-    constexpr uint128_t operator^(std::integral auto const & rhs) const noexcept {
+    constexpr auto operator^(std::integral auto const rhs) const noexcept -> uint128_t {
         return { upper_, lower_ ^ static_cast<uint64_t>(rhs) };
     }
 
-    constexpr uint128_t & operator^=(uint128_t const & rhs) noexcept {
+    constexpr auto operator^=(uint128_t const rhs) noexcept -> uint128_t & {
         upper_ ^= rhs.upper_;
         lower_ ^= rhs.lower_;
         return *this;
     }
 
-    constexpr uint128_t & operator^=(std::integral auto const & rhs) noexcept {
+    constexpr auto operator^=(std::integral auto const rhs) noexcept -> uint128_t & {
         lower_ ^= static_cast<uint64_t>(rhs);
         return *this;
     }
 
-    constexpr uint128_t operator~() const noexcept {
+    constexpr auto operator~() const noexcept -> uint128_t {
         return { ~upper_, ~lower_ };
     }
 
@@ -235,7 +247,7 @@ public:
         assert(ret.size() == 16);
     }
 
-    [[nodiscard]] constexpr std::vector<uint8_t> export_bits_compact() const {
+    [[nodiscard]] constexpr auto export_bits_compact() const -> std::vector<uint8_t> {
         std::vector<uint8_t> ret;
         ret.reserve(16);
         export_bits(ret);
@@ -246,10 +258,11 @@ public:
             ++i;
         }
         ret.erase(std::begin(ret), std::next(std::begin(ret), i));
+
         return ret;
     }
 
-    [[nodiscard]] constexpr std::vector<uint8_t> export_bits_compact(std::endian const endian) const {
+    [[nodiscard]] constexpr auto export_bits_compact(std::endian const endian) const -> std::vector<uint8_t> {
         auto res = export_bits_compact();
         if (endian == std::endian::little) {
             std::ranges::reverse(res);
@@ -259,49 +272,103 @@ public:
     }
 
     // Bit Shift Operators
-    uint128_t operator<<(uint128_t const & rhs) const;
+    constexpr auto operator<<(uint128_t const rhs) const noexcept -> uint128_t {
+        if (uint64_t const shift = rhs.lower_; static_cast<bool>(rhs.upper_) || (shift >= 128)) {
+            return { 0};
+        } else {
+            if (shift == 64) {
+                return { lower_, 0u };
+            }
 
-    uint128_t operator<<(std::integral auto const rhs) const {
-        return *this << uint128_t(rhs);
+            if (shift == 0) {
+                return *this;
+            }
+
+            if (shift < 64) {
+                return { (upper_ << shift) + (lower_ >> (64 - shift)), lower_ << shift };
+            }
+
+            if ((128 > shift) && (shift > 64)) {
+                return { lower_ << (shift - 64), 0 };
+            }
+
+            return {0};
+        }
     }
 
-    uint128_t & operator<<=(uint128_t const & rhs);
+    constexpr auto operator<<(std::integral auto const rhs) const noexcept -> uint128_t {
+        return *this << uint128_t{ rhs };
+    }
 
-    uint128_t & operator<<=(std::integral auto const rhs) {
+    constexpr auto operator<<=(uint128_t const rhs) noexcept -> uint128_t & {
+        *this = *this << rhs;
+        return *this;
+    }
+
+    constexpr auto operator<<=(std::integral auto const rhs) noexcept -> uint128_t & {
         *this = *this << uint128_t{ rhs };
         return *this;
     }
 
-    uint128_t operator>>(uint128_t const & rhs) const;
-
-    uint128_t operator>>(std::integral auto const & rhs) const {
-        return *this >> uint128_t(rhs);
+    constexpr auto operator>>(uint128_t const rhs) const noexcept -> uint128_t {
+        if (uint64_t const shift = rhs.lower_; static_cast<bool>(rhs.upper_) || (shift >= 128)) {
+            return { 0 };
+        } else {
+            if (shift == 64) {
+                return { 0u, upper_ };
+            }
+            if (shift == 0) {
+                return *this;
+            }
+            if (shift < 64) {
+                return { upper_ >> shift, (upper_ << (64 - shift)) + (lower_ >> shift) };
+            }
+            if ((128 > shift) && (shift > 64)) {
+                return { 0, (upper_ >> (shift - 64)) };
+            }
+            return { 0 };
+        }
     }
 
-    uint128_t & operator>>=(uint128_t const & rhs);
+    constexpr auto operator>>(std::integral auto const rhs) const noexcept -> uint128_t {
+        return *this >> uint128_t{ rhs };
+    }
 
-    uint128_t & operator>>=(std::integral auto const & rhs) {
-        *this = *this >> uint128_t(rhs);
+    constexpr auto operator>>=(uint128_t const rhs) noexcept -> uint128_t & {
+        *this = *this >> rhs;
+        return *this;
+    }
+
+    constexpr auto operator>>=(std::integral auto const rhs) noexcept -> uint128_t & {
+        *this = *this >> uint128_t{ rhs };
         return *this;
     }
 
     // Logical Operators
-    bool operator!() const;
-    bool operator&&(uint128_t const & rhs) const;
-    bool operator||(uint128_t const & rhs) const;
+    constexpr bool operator!() const noexcept {
+        return !static_cast<bool>(upper_ | lower_);
+    }
 
-    bool operator&&(std::integral auto const & rhs) const {
+    constexpr bool operator&&(uint128_t const rhs) const noexcept {
+        return (static_cast<bool>(*this) && rhs);
+    }
+
+    constexpr bool operator||(uint128_t const rhs) const noexcept {
+        return (static_cast<bool>(*this) || rhs);
+    }
+
+    constexpr bool operator&&(std::integral auto const rhs) const noexcept {
         return static_cast<bool>(*this && rhs);
     }
 
-    bool operator||(std::integral auto const & rhs) const {
+    constexpr bool operator||(std::integral auto const rhs) const noexcept {
         return static_cast<bool>(*this || rhs);
     }
 
     // Comparison Operators
-    constexpr bool operator==(uint128_t const & rhs) const = default;
+    bool operator==(uint128_t const & rhs) const = default;
 #if defined(__LITTLE_ENDIAN__)
-    constexpr std::strong_ordering operator<=>(uint128_t const & rhs) const {
+    constexpr auto operator<=>(uint128_t const & rhs) const noexcept -> std::strong_ordering {
         if (upper_ == rhs.upper_) {
             return lower_ <=> rhs.lower_;
         }
@@ -309,14 +376,14 @@ public:
         return upper_ <=> rhs.upper_;
     }
 #elif defined(__BIG_ENDIAN__)
-    constexpr std::strong_ordering operator<=>(uint128_t const & rhs) const = default;
+    constexpr auto operator<=>(uint128_t const & rhs) const ->std::strong_ordering = default;
 #endif
 
-    constexpr bool operator==(std::integral auto const rhs) const {
+    constexpr bool operator==(std::integral auto const rhs) const noexcept {
         return !upper_ && lower_ == static_cast<uint64_t>(rhs);
     }
 
-    constexpr std::strong_ordering operator<=>(std::integral auto const & rhs) const {
+    constexpr auto operator<=>(std::integral auto const rhs) const noexcept -> std::strong_ordering {
         if (upper_ == 0) {
             return lower_ <=> static_cast<uint64_t>(rhs);
         }
@@ -325,44 +392,135 @@ public:
     }
 
     // Arithmetic Operators
-    uint128_t operator+(uint128_t const & rhs) const;
+    constexpr auto operator+(uint128_t const rhs) const noexcept -> uint128_t {
+        return { upper_ + rhs.upper_ + ((lower_ + rhs.lower_) < lower_), lower_ + rhs.lower_ };
+    }
 
-    uint128_t operator+(std::integral auto const & rhs) const {
+    constexpr auto operator+(std::integral auto const rhs) const noexcept -> uint128_t {
         return { upper_ + ((lower_ + static_cast<uint64_t>(rhs)) < lower_), lower_ + static_cast<uint64_t>(rhs) };
     }
 
-    uint128_t & operator+=(uint128_t const & rhs);
-
-    uint128_t & operator+=(std::integral auto const & rhs) {
-        return *this += uint128_t(rhs);
+    constexpr auto operator+=(uint128_t const rhs) noexcept -> uint128_t & {
+        upper_ += rhs.upper_ + ((lower_ + rhs.lower_) < lower_);
+        lower_ += rhs.lower_;
+        return *this;
     }
 
-    uint128_t operator-(uint128_t const & rhs) const;
+    constexpr auto operator+=(std::integral auto const rhs) noexcept -> uint128_t & {
+        return *this += uint128_t{ rhs };
+    }
 
-    uint128_t operator-(std::integral auto const & rhs) const {
+    constexpr auto operator-(uint128_t const rhs) const noexcept -> uint128_t {
+        return { upper_ - rhs.upper_ - ((lower_ - rhs.lower_) > lower_), lower_ - rhs.lower_ };
+    }
+
+    constexpr auto operator-(std::integral auto const rhs) const noexcept -> uint128_t {
         return { static_cast<uint64_t>(upper_ - ((lower_ - rhs) > lower_)), static_cast<uint64_t>(lower_ - rhs) };
     }
 
-    uint128_t & operator-=(uint128_t const & rhs);
+    constexpr auto operator-=(uint128_t const rhs) noexcept -> uint128_t & {
+        *this = *this - rhs;
+        return *this;
+    }
 
-    uint128_t & operator-=(std::integral auto const & rhs) {
+    constexpr auto operator-=(std::integral auto const rhs) noexcept -> uint128_t & {
         return *this = *this - uint128_t(rhs);
     }
 
-    uint128_t operator*(uint128_t const & rhs) const;
+    constexpr auto operator*(uint128_t const rhs) const noexcept -> uint128_t {
+        // split values into 4 32-bit parts
+        uint64_t const top[4] = { upper_ >> 32, upper_ & 0xffffffff, lower_ >> 32, lower_ & 0xffffffff };
+        uint64_t const bottom[4] = { rhs.upper_ >> 32, rhs.upper_ & 0xffffffff, rhs.lower_ >> 32, rhs.lower_ & 0xffffffff };
+        uint64_t products[4][4];
 
-    uint128_t operator*(std::integral auto const & rhs) const {
-        return *this * uint128_t(rhs);
+        // multiply each component of the values
+        for (int y = 3; y > -1; y--) {
+            for (int x = 3; x > -1; x--) {
+                products[3 - x][y] = top[x] * bottom[y];
+            }
+        }
+
+        // first row
+        uint64_t fourth32 = (products[0][3] & 0xffffffff);
+        uint64_t third32 = (products[0][2] & 0xffffffff) + (products[0][3] >> 32);
+        uint64_t second32 = (products[0][1] & 0xffffffff) + (products[0][2] >> 32);
+        uint64_t first32 = (products[0][0] & 0xffffffff) + (products[0][1] >> 32);
+
+        // second row
+        third32 += (products[1][3] & 0xffffffff);
+        second32 += (products[1][2] & 0xffffffff) + (products[1][3] >> 32);
+        first32 += (products[1][1] & 0xffffffff) + (products[1][2] >> 32);
+
+        // third row
+        second32 += (products[2][3] & 0xffffffff);
+        first32 += (products[2][2] & 0xffffffff) + (products[2][3] >> 32);
+
+        // fourth row
+        first32 += (products[3][3] & 0xffffffff);
+
+        // move carry to next digit
+        third32 += fourth32 >> 32;
+        second32 += third32 >> 32;
+        first32 += second32 >> 32;
+
+        // remove carry from current digit
+        fourth32 &= 0xffffffff;
+        third32 &= 0xffffffff;
+        second32 &= 0xffffffff;
+        first32 &= 0xffffffff;
+
+        // combine components
+        return { (first32 << 32) | second32, (third32 << 32) | fourth32 };
     }
 
-    uint128_t & operator*=(uint128_t const & rhs);
+    constexpr auto operator*(std::integral auto const & rhs) const noexcept -> uint128_t {
+        return *this * uint128_t{ rhs };
+    }
 
-    uint128_t & operator*=(std::integral auto const & rhs) {
+    constexpr auto operator*=(uint128_t const rhs) noexcept -> uint128_t & {
+        *this = *this * rhs;
+        return *this;
+    }
+
+    constexpr auto operator*=(std::integral auto const rhs) noexcept -> uint128_t & {
         return *this = *this * uint128_t(rhs);
     }
 
 private:
-    [[nodiscard]] std::pair<uint128_t, uint128_t> divmod(uint128_t const & lhs, uint128_t const & rhs) const;
+    [[nodiscard]] constexpr static auto divmod(uint128_t const lhs, uint128_t const rhs) -> std::pair<uint128_t, uint128_t> {
+        // Save some calculations /////////////////////
+        if (rhs == uint128_t{ 0 }) {
+            throw std::domain_error("Error: division or modulus by 0");
+        }
+
+        if (rhs == uint128_t{ 1 }) {
+            return { lhs, uint128_t{ 0 } };
+        }
+
+        if (lhs == rhs) {
+            return { uint128_t{ 1}, uint128_t{ 0 } };
+        }
+
+        if ((lhs == uint128_t{ 0 }) || (lhs < rhs)) {
+            return { uint128_t{ 0 }, lhs };
+        }
+
+        std::pair qr{ uint128_t{ 0 }, uint128_t{ 0 } };
+        for (uint8_t x = lhs.bits(); x > 0; x--) {
+            qr.first <<= uint128_t{ 1 };
+            qr.second <<= uint128_t{ 1 };
+
+            if ((lhs >> (x - 1U)) & 1) {
+                ++qr.second;
+            }
+
+            if (qr.second >= rhs) {
+                qr.second -= rhs;
+                ++qr.first;
+            }
+        }
+        return qr;
+    }
     // do not use prefixes (0x, 0b, etc.)
     // if the input string is too long, only right most characters are read
     constexpr void init(char const * s, std::size_t len, uint8_t const base) {
@@ -458,7 +616,7 @@ private:
         }
     }
 
-    constexpr void init_bin(char const * s, std::size_t len) {
+    constexpr void init_bin(char const * s, std::size_t const len) {
         // 2**128 = 0x100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000.
         constexpr std::size_t MAX_LEN = 128;
 
@@ -485,7 +643,7 @@ private:
         }
     }
 
-    constexpr static void convert_to_vector_big_endian(uint64_t const & val, std::vector<uint8_t> & ret) {
+    constexpr static void convert_to_vector_big_endian(uint64_t const val, std::vector<uint8_t> & ret) {
         ret.push_back(static_cast<uint8_t>(val >> 56));
         ret.push_back(static_cast<uint8_t>(val >> 48));
         ret.push_back(static_cast<uint8_t>(val >> 40));
@@ -497,53 +655,109 @@ private:
     }
 
 public:
-    uint128_t operator/(uint128_t const & rhs) const;
-
-    uint128_t operator/(std::integral auto const & rhs) const {
-        return *this / uint128_t(rhs);
+    constexpr auto operator/(uint128_t const rhs) const -> uint128_t {
+        return divmod(*this, rhs).first;
     }
 
-    uint128_t & operator/=(uint128_t const & rhs);
+    constexpr auto operator/(std::integral auto const rhs) const -> uint128_t {
+        return *this / uint128_t{ rhs };
+    }
 
-    uint128_t & operator/=(std::integral auto const & rhs) {
+    constexpr auto operator/=(uint128_t const rhs) -> uint128_t & {
+        return *this = *this / rhs;
+    }
+
+    constexpr auto operator/=(std::integral auto const rhs) -> uint128_t & {
         return *this = *this / uint128_t(rhs);
     }
 
-    uint128_t operator%(uint128_t const & rhs) const;
+    constexpr auto operator%(uint128_t const rhs) const -> uint128_t {
+        return divmod(*this, rhs).second;
+    }
 
-    uint128_t operator%(std::integral auto const & rhs) const {
+    constexpr auto operator%(std::integral auto const rhs) const -> uint128_t {
         return *this % uint128_t(rhs);
     }
 
-    uint128_t & operator%=(uint128_t const & rhs);
+    constexpr auto operator%=(uint128_t const rhs) -> uint128_t & {
+        return *this = *this % rhs;
+    }
 
-    uint128_t & operator%=(std::integral auto const & rhs) {
-        return *this = *this % uint128_t(rhs);
+    constexpr auto operator%=(std::integral auto const rhs) -> uint128_t & {
+        return *this = *this % uint128_t{ rhs };
     }
 
     // Increment Operator
-    uint128_t & operator++();
-    uint128_t operator++(int);
+    constexpr auto operator++() noexcept -> uint128_t & {
+        return *this += uint128_t{ 1 };
+    }
+
+    constexpr auto operator++(int) noexcept -> uint128_t {
+        uint128_t const temp{ *this };
+        ++*this;
+        return temp;
+    }
 
     // Decrement Operator
-    uint128_t & operator--();
-    uint128_t operator--(int);
+    constexpr auto operator--() noexcept -> uint128_t & {
+        return *this -= uint128_t{ 1 };
+    }
+
+    constexpr auto operator--(int) noexcept -> uint128_t {
+        uint128_t const temp{ *this };
+        --*this;
+        return temp;
+    }
 
     // Nothing done since promotion doesn't work here
-    uint128_t operator+() const;
+    constexpr auto operator+() const noexcept -> uint128_t {
+        return *this;
+    }
 
     // two's complement
-    uint128_t operator-() const;
+    constexpr auto operator-() const noexcept -> uint128_t {
+        return ~*this + uint128_t{ 1 };
+    }
 
     // Get private values
-    [[nodiscard]] uint64_t upper() const;
-    [[nodiscard]] uint64_t lower() const;
+    [[nodiscard]] constexpr auto upper() const noexcept -> uint64_t {
+        return upper_;
+    }
+
+    [[nodiscard]] constexpr auto lower() const noexcept -> uint64_t {
+        return lower_;
+    }
 
     // Get bit size of value
-    [[nodiscard]] uint8_t bits() const;
+    [[nodiscard]] constexpr auto bits() const -> uint8_t {
+        if (upper_) {
+            return 64 + static_cast<uint8_t>(std::bit_width(upper_));
+        }
+
+        return static_cast<uint8_t>(std::bit_width(lower_));
+    }
 
     // Get string representation of value
-    [[nodiscard]] std::string str(uint8_t base = 10, unsigned int len = 0) const;
+    [[nodiscard]] constexpr auto str(uint8_t const base = 10, unsigned int const len = 0) const -> std::string {
+        if ((base < 2) || (base > 16)) {
+            throw std::invalid_argument("Base must be in the range [2, 16]");
+        }
+
+        std::string out;
+        if (!(*this)) {
+            out = "0";
+        } else {
+            std::pair qr{ *this, uint128_t{0} };
+            do {
+                qr = divmod(qr.first, base);
+                out = "0123456789abcdef"[static_cast<uint8_t>(qr.second)] + out;
+            } while (qr.first);
+        }
+        if (out.size() < len) {
+            out = std::string(len - out.size(), '0') + out;
+        }
+        return out;
+    }
 };
 
 // useful values
@@ -554,111 +768,108 @@ inline constexpr uint128_t uint128_1{ 1 };
 // If the output is not a bool, casts to type T
 
 // Bitwise Operators
-uint128_t operator&(std::integral auto const & lhs, uint128_t const & rhs) {
+constexpr auto operator&(std::integral auto const lhs, uint128_t const rhs) noexcept -> uint128_t {
     return rhs & lhs;
 }
 
 template <std::integral T>
-T & operator&=(T & lhs, uint128_t const & rhs) {
+constexpr auto operator&=(T & lhs, uint128_t const rhs) noexcept -> T & {
     return lhs = static_cast<T>(rhs & lhs);
 }
 
-uint128_t operator|(std::integral auto const & lhs, uint128_t const & rhs) {
+constexpr auto operator|(std::integral auto const lhs, uint128_t const rhs) noexcept -> uint128_t {
     return rhs | lhs;
 }
 
 template <std::integral T>
-T & operator|=(T & lhs, uint128_t const & rhs) {
+constexpr auto operator|=(T & lhs, uint128_t const rhs) noexcept -> T & {
     return lhs = static_cast<T>(rhs | lhs);
 }
 
-uint128_t operator^(std::integral auto const & lhs, uint128_t const & rhs) {
+constexpr auto operator^(std::integral auto const lhs, uint128_t const rhs) noexcept -> uint128_t {
     return rhs ^ lhs;
 }
 
 template <std::integral T>
-T & operator^=(T & lhs, uint128_t const & rhs) {
+constexpr auto operator^=(T & lhs, uint128_t const rhs) noexcept -> T & {
     return lhs = static_cast<T>(rhs ^ lhs);
 }
 
 // Bit shift operators
-UINT128_T_EXTERN_C UINT128_T_API uint128_t operator<<(bool const & lhs, uint128_t const & rhs);
-UINT128_T_EXTERN_C UINT128_T_API uint128_t operator<<(uint8_t const & lhs, uint128_t const & rhs);
-UINT128_T_EXTERN_C UINT128_T_API uint128_t operator<<(uint16_t const & lhs, uint128_t const & rhs);
-UINT128_T_EXTERN_C UINT128_T_API uint128_t operator<<(uint32_t const & lhs, uint128_t const & rhs);
-UINT128_T_EXTERN_C UINT128_T_API uint128_t operator<<(uint64_t const & lhs, uint128_t const & rhs);
-UINT128_T_EXTERN_C UINT128_T_API uint128_t operator<<(int8_t const & lhs, uint128_t const & rhs);
-UINT128_T_EXTERN_C UINT128_T_API uint128_t operator<<(int16_t const & lhs, uint128_t const & rhs);
-UINT128_T_EXTERN_C UINT128_T_API uint128_t operator<<(int32_t const & lhs, uint128_t const & rhs);
-UINT128_T_EXTERN_C UINT128_T_API uint128_t operator<<(int64_t const & lhs, uint128_t const & rhs);
-
-template <std::integral T>
-T & operator<<=(T & lhs, uint128_t const & rhs) {
-    return lhs = static_cast<T>(uint128_t(lhs) << rhs);
+constexpr auto operator<<(std::integral auto const lhs, uint128_t const rhs) noexcept -> uint128_t {
+    return uint128_t{ lhs } << rhs;
 }
 
-UINT128_T_EXTERN_C UINT128_T_API uint128_t operator>>(bool const & lhs, uint128_t const & rhs);
-UINT128_T_EXTERN_C UINT128_T_API uint128_t operator>>(uint8_t const & lhs, uint128_t const & rhs);
-UINT128_T_EXTERN_C UINT128_T_API uint128_t operator>>(uint16_t const & lhs, uint128_t const & rhs);
-UINT128_T_EXTERN_C UINT128_T_API uint128_t operator>>(uint32_t const & lhs, uint128_t const & rhs);
-UINT128_T_EXTERN_C UINT128_T_API uint128_t operator>>(uint64_t const & lhs, uint128_t const & rhs);
-UINT128_T_EXTERN_C UINT128_T_API uint128_t operator>>(int8_t const & lhs, uint128_t const & rhs);
-UINT128_T_EXTERN_C UINT128_T_API uint128_t operator>>(int16_t const & lhs, uint128_t const & rhs);
-UINT128_T_EXTERN_C UINT128_T_API uint128_t operator>>(int32_t const & lhs, uint128_t const & rhs);
-UINT128_T_EXTERN_C UINT128_T_API uint128_t operator>>(int64_t const & lhs, uint128_t const & rhs);
+template <std::integral T>
+constexpr auto operator<<=(T & lhs, uint128_t const rhs) noexcept -> T & {
+    return lhs = static_cast<T>(uint128_t{ lhs } << rhs);
+}
+
+constexpr auto operator>>(std::integral auto const lhs, uint128_t const rhs) noexcept -> uint128_t {
+    return uint128_t{ lhs } >> rhs;
+}
 
 template <std::integral T>
-T & operator>>=(T & lhs, uint128_t const & rhs) {
-    return lhs = static_cast<T>(uint128_t(lhs) >> rhs);
+constexpr auto operator>>=(T & lhs, uint128_t const rhs) noexcept -> T & {
+    return lhs = static_cast<T>(uint128_t{ lhs } >> rhs);
 }
 
 // Arithmetic Operators
-uint128_t operator+(std::integral auto const & lhs, uint128_t const & rhs) {
+constexpr auto operator+(std::integral auto const lhs, uint128_t const rhs) -> uint128_t {
     return rhs + lhs;
 }
 
 template <std::integral T>
-T & operator+=(T & lhs, uint128_t const & rhs) {
+constexpr auto operator+=(T & lhs, uint128_t const rhs) -> T & {
     return lhs = static_cast<T>(rhs + lhs);
 }
 
-uint128_t operator-(std::integral auto const & lhs, uint128_t const & rhs) {
+constexpr auto operator-(std::integral auto const lhs, uint128_t const rhs) -> uint128_t {
     return -(rhs - lhs);
 }
 
 template <std::integral T>
-T & operator-=(T & lhs, uint128_t const & rhs) {
+constexpr auto operator-=(T & lhs, uint128_t const rhs) -> T & {
     return lhs = static_cast<T>(-(rhs - lhs));
 }
 
-uint128_t operator*(std::integral auto const & lhs, uint128_t const & rhs) {
+constexpr auto operator*(std::integral auto const lhs, uint128_t const rhs) -> uint128_t {
     return rhs * lhs;
 }
 
 template <std::integral T>
-T & operator*=(T & lhs, uint128_t const & rhs) {
+constexpr auto operator*=(T & lhs, uint128_t const rhs) -> T & {
     return lhs = static_cast<T>(rhs * lhs);
 }
 
-uint128_t operator/(std::integral auto const & lhs, uint128_t const & rhs) {
+constexpr auto operator/(std::integral auto const lhs, uint128_t const rhs) -> uint128_t {
     return uint128_t(lhs) / rhs;
 }
 
 template <std::integral T>
-T & operator/=(T & lhs, uint128_t const & rhs) {
+constexpr auto operator/=(T & lhs, uint128_t const rhs) -> T & {
     return lhs = static_cast<T>(uint128_t(lhs) / rhs);
 }
 
-uint128_t operator%(std::integral auto const & lhs, uint128_t const & rhs) {
-    return uint128_t(lhs) % rhs;
+constexpr auto operator%(std::integral auto const lhs, uint128_t const rhs) -> uint128_t {
+    return uint128_t{ lhs } % rhs;
 }
 
 template <std::integral T>
-T & operator%=(T & lhs, uint128_t const & rhs) {
-    return lhs = static_cast<T>(uint128_t(lhs) % rhs);
+constexpr auto operator%=(T & lhs, uint128_t const rhs) -> T & {
+    return lhs = static_cast<T>(uint128_t{ lhs } % rhs);
 }
 
 // IO Operator
-UINT128_T_EXTERN_C UINT128_T_API std::ostream & operator<<(std::ostream & stream, uint128_t const & rhs);
+inline std::ostream & operator<<(std::ostream & stream, uint128_t const rhs) {
+    if (stream.flags() & std::ios_base::oct) {
+        stream << rhs.str(8);
+    } else if (stream.flags() & std::ios_base::dec) {
+        stream << rhs.str(10);
+    } else if (stream.flags() & std::ios_base::hex) {
+        stream << rhs.str(16);
+    }
+    return stream;
+}
 
 #endif

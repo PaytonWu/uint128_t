@@ -43,35 +43,20 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
     )
 endif()
 
-aux_source_directory(src SRCS)
-add_library(${UINT128_LIBRARY} ${SRCS})
-
-if (BUILD_SHARED_LIBS)
-    target_compile_definitions(${UINT128_LIBRARY} PRIVATE UINT128_T_DLL UINT128_T_EXPORT)
-endif()
+add_library(${UINT128_LIBRARY} INTERFACE)
+target_include_directories(${UINT128_LIBRARY} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 if (WITH_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()
 
-if (BUILD_SHARED_LIBS)
-    install(
-        TARGETS ${UINT128_LIBRARY}
-        COMPONENT runtime
-        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-        INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+install(
+    TARGETS ${UINT128_LIBRARY}
+    COMPONENT devel
+    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
-else()
-    install(
-        TARGETS ${UINT128_LIBRARY}
-        COMPONENT devel
-        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-        INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-)
-endif()
+
 
 install(
     DIRECTORY include/uint128
