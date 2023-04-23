@@ -43,14 +43,12 @@ int main() {
 ```
 
 ### Compilation
-A C++ compiler supporting at least C++20 is required.
+A C++ compiler supporting at least C++23 is required.
 
+This library is header-only, so no compilation is required. However, if you want to build and run tests, you need to compile the library.
 Compilation can be done by using cmake toolchain.
 
 1. `mkdir build && cd build`
-2. `cmake ..`
+2. `cmake -DWITH_TESTS=ON ..`
 3. `ninja`
-
-It builds static library by default. For building shared library, run `cmake -DBUILD_SHARED_LIBS=ON ..` at step #2.
-
-If you want to build and run tests, pass `-DWITH_TESTS=ON` to cmake at step #2 and executing `ctest` after step #3.
+4. `ctest`

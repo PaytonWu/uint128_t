@@ -15,11 +15,6 @@
                     "name": "WITH_TESTS",
                     "value": "ON",
                     "type": "BOOL"
-                },
-                {
-                    "name": "BUILD_SHARED_LIBS",
-                    "value": "OFF",
-                    "type": "BOOL"
                 }
             ],
             "intelliSenseMode": "windows-msvc-x64"
