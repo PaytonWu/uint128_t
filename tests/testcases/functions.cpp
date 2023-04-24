@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "uint128/uint128_t.h"
+#include "uint128.h"
 
 static const std::map <uint32_t, std::string> tests = {
     std::make_pair(2,  "10000100000101011000010101101100"),

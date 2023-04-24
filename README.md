@@ -28,11 +28,11 @@ integer type in C++. It's meant to be used like a standard
 by C/C++.
 
 ### In Code
-All that needs to be done in code is `#include "uint128/uint128_t.h"`
+All that needs to be done in code is `#include "uint128.h"`
 
 ```c++
 #include <iostream>
-#include "uint128/uint128_t.h"
+#include "uint128.h"
 
 int main() {
     uint128_t a = 1;

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "uint128/uint128_t.h"
+#include "uint128.h"
 
 TEST(Comparison, less_than_or_equals){
     const uint128_t big  (0xffffffffffffffffULL, 0xffffffffffffffffULL);

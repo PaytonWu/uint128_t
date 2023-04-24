@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "uint128/uint128_t.h"
+#include "uint128.h"
 
 TEST(Constructor, standard){
     const uint128_t value(0x0123456789abcdefULL);

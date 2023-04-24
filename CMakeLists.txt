@@ -59,7 +59,7 @@ install(
 
 
 install(
-    DIRECTORY include/uint128
+    DIRECTORY include
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
     COMPONENT devel
 )

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "uint128/uint128_t.h"
+#include "uint128.h"
 
 TEST(Arithmetic, multiply){
     uint128_t val(0xfedbca9876543210ULL);

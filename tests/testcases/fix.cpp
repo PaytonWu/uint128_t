@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "uint128/uint128_t.h"
+#include "uint128.h"
 
 TEST(Arithmetic, increment){
     uint128_t value(0);
