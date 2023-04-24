@@ -47,6 +47,7 @@
 #include <concepts>
 #include <cstdint>
 #include <ostream>
+#include <span>
 #include <sstream>
 #include <string>
 #include <type_traits>
@@ -241,10 +242,36 @@ public:
         return { ~upper_, ~lower_ };
     }
 
+    constexpr void export_bits(std::span<uint8_t> const ret) const noexcept {
+        assert(ret.size() >= 16);
+
+        convert_to_span_big_endian(upper_, ret);
+        convert_to_span_big_endian(lower_, ret.subspan(8));
+    }
+
     constexpr void export_bits(std::vector<uint8_t> & ret) const noexcept {
         convert_to_vector_big_endian(upper_, ret);
         convert_to_vector_big_endian(lower_, ret);
         assert(ret.size() == 16);
+    }
+
+    [[nodiscard]] constexpr auto export_bits() const noexcept -> std::vector<uint8_t> {
+        std::vector<uint8_t> ret;
+        ret.reserve(16);
+        export_bits(ret);
+        return ret;
+    }
+
+    constexpr auto export_bits_compact(std::span<uint8_t> const ret) const noexcept -> size_t {
+        assert(ret.size() >= 16);
+        auto tmp = export_bits_compact();
+        std::ranges::copy(tmp, std::begin(ret));
+        return tmp.size();
+    }
+
+    constexpr void export_bits_compact(std::vector<uint8_t> & ret) const noexcept {
+        auto tmp = export_bits_compact();
+        std::ranges::copy(tmp, std::back_inserter(ret));
     }
 
     [[nodiscard]] constexpr auto export_bits_compact() const -> std::vector<uint8_t> {
@@ -260,6 +287,20 @@ public:
         ret.erase(std::begin(ret), std::next(std::begin(ret), i));
 
         return ret;
+    }
+
+    constexpr auto export_bits_compact(std::endian const endian, std::span<uint8_t> ret) const noexcept -> size_t {
+        assert(ret.size() >= 16);
+
+        auto tmp = export_bits_compact(endian);
+        std::ranges::copy(tmp, std::begin(ret));
+
+        return tmp.size();
+    }
+
+    constexpr void export_bits_compact(std::endian const endian, std::vector<uint8_t> & ret) const noexcept {
+        auto tmp = export_bits_compact(endian);
+        std::ranges::copy(tmp, std::back_inserter(ret));
     }
 
     [[nodiscard]] constexpr auto export_bits_compact(std::endian const endian) const -> std::vector<uint8_t> {
@@ -641,6 +682,17 @@ private:
             lower_ <<= 1;
             lower_ |= *s - '0';
         }
+    }
+
+    constexpr static void convert_to_span_big_endian(uint64_t const val, std::span<uint8_t> ret) {
+        ret[0] = static_cast<uint8_t>(val >> 56);
+        ret[1] = static_cast<uint8_t>(val >> 48);
+        ret[2] = static_cast<uint8_t>(val >> 40);
+        ret[3] = static_cast<uint8_t>(val >> 32);
+        ret[4] = static_cast<uint8_t>(val >> 24);
+        ret[5] = static_cast<uint8_t>(val >> 16);
+        ret[6] = static_cast<uint8_t>(val >> 8);
+        ret[7] = static_cast<uint8_t>(val);
     }
 
     constexpr static void convert_to_vector_big_endian(uint64_t const val, std::vector<uint8_t> & ret) {
