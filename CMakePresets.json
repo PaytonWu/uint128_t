@@ -52,8 +52,7 @@
             "displayName": "Target Windows with the Visual Studio development environment",
             "generator": "Ninja",
             "cacheVariables": {
-                "CMAKE_CXX_COMPILER": "cl.exe",
-                "WITH_TESTS": "ON"
+                "CMAKE_CXX_COMPILER": "cl.exe"
             },
             "hidden": true
         },
